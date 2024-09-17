@@ -195,6 +195,7 @@ size_t PhoneAPI::getFromRadio(uint8_t *buf)
         if (us) {
             nodeInfoForPhone = TypeConversions::ConvertToNodeInfo(us);
             nodeInfoForPhone.hops_away = 0;
+            nodeInfoForPhone.has_hops_away = true;
             nodeInfoForPhone.is_favorite = true;
             fromRadioScratch.which_payload_variant = meshtastic_FromRadio_node_info_tag;
             fromRadioScratch.node_info = nodeInfoForPhone;
@@ -495,10 +496,12 @@ bool PhoneAPI::available()
         if (nodeInfoForPhone.num == 0) {
             auto nextNode = nodeDB->readNextMeshNode(readIndex);
             if (nextNode) {
+                const int isSelf = nodeInfoForPhone.num == nodeDB->getNodeNum();
                 nodeInfoForPhone = TypeConversions::ConvertToNodeInfo(nextNode);
-                nodeInfoForPhone.hops_away = nodeInfoForPhone.num == nodeDB->getNodeNum() ? 0 : nodeInfoForPhone.hops_away;
+                nodeInfoForPhone.hops_away = isSelf ? 0 : nodeInfoForPhone.hops_away;
+                nodeInfoForPhone.has_hops_away = nodeInfoForPhone.has_hops_away || isSelf;
                 nodeInfoForPhone.is_favorite =
-                    nodeInfoForPhone.is_favorite || nodeInfoForPhone.num == nodeDB->getNodeNum(); // Our node is always a favorite
+                    nodeInfoForPhone.is_favorite || isSelf; // Our node is always a favorite
             }
         }
         return true; // Always say we have something, because we might need to advance our state machine

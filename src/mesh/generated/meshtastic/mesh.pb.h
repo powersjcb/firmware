@@ -694,7 +694,9 @@ typedef struct _meshtastic_MeshPacket {
     /* Describes whether this packet passed via MQTT somewhere along the path it currently took. */
     bool via_mqtt;
     /* Hop limit with which the original packet started. Sent via LoRa using three bits in the unencrypted header.
- When receiving a packet, the difference between hop_start and hop_limit gives how many hops it traveled. */
+ When receiving a packet, the difference between hop_start and hop_limit gives how many hops it traveled.
+ 
+ note: this value is not present for firmware < 2.3.x */
     uint8_t hop_start;
     /* Records the public key the packet was encrypted with, if applicable. */
     meshtastic_MeshPacket_public_key_t public_key;
@@ -741,6 +743,7 @@ typedef struct _meshtastic_NodeInfo {
     /* True if we witnessed the node over MQTT instead of LoRA transport */
     bool via_mqtt;
     /* Number of hops away from us this node is (0 if adjacent) */
+    bool has_hops_away;
     uint8_t hops_away;
     /* True if node is in our favorites list
  Persists between NodeDB internal clean ups */
@@ -1089,7 +1092,7 @@ extern "C" {
 #define meshtastic_Waypoint_init_default         {0, false, 0, false, 0, 0, 0, "", "", 0}
 #define meshtastic_MqttClientProxyMessage_init_default {"", 0, {{0, {0}}}, 0}
 #define meshtastic_MeshPacket_init_default       {0, 0, 0, 0, {meshtastic_Data_init_default}, 0, 0, 0, 0, 0, _meshtastic_MeshPacket_Priority_MIN, 0, _meshtastic_MeshPacket_Delayed_MIN, 0, 0, {0, {0}}, 0}
-#define meshtastic_NodeInfo_init_default         {0, false, meshtastic_User_init_default, false, meshtastic_Position_init_default, 0, 0, false, meshtastic_DeviceMetrics_init_default, 0, 0, 0, 0}
+#define meshtastic_NodeInfo_init_default         {0, false, meshtastic_User_init_default, false, meshtastic_Position_init_default, 0, 0, false, meshtastic_DeviceMetrics_init_default, 0, 0, false, 0, 0}
 #define meshtastic_MyNodeInfo_init_default       {0, 0, 0}
 #define meshtastic_LogRecord_init_default        {"", 0, "", _meshtastic_LogRecord_Level_MIN}
 #define meshtastic_QueueStatus_init_default      {0, 0, 0, 0}
@@ -1114,7 +1117,7 @@ extern "C" {
 #define meshtastic_Waypoint_init_zero            {0, false, 0, false, 0, 0, 0, "", "", 0}
 #define meshtastic_MqttClientProxyMessage_init_zero {"", 0, {{0, {0}}}, 0}
 #define meshtastic_MeshPacket_init_zero          {0, 0, 0, 0, {meshtastic_Data_init_zero}, 0, 0, 0, 0, 0, _meshtastic_MeshPacket_Priority_MIN, 0, _meshtastic_MeshPacket_Delayed_MIN, 0, 0, {0, {0}}, 0}
-#define meshtastic_NodeInfo_init_zero            {0, false, meshtastic_User_init_zero, false, meshtastic_Position_init_zero, 0, 0, false, meshtastic_DeviceMetrics_init_zero, 0, 0, 0, 0}
+#define meshtastic_NodeInfo_init_zero            {0, false, meshtastic_User_init_zero, false, meshtastic_Position_init_zero, 0, 0, false, meshtastic_DeviceMetrics_init_zero, 0, 0, false, 0, 0}
 #define meshtastic_MyNodeInfo_init_zero          {0, 0, 0}
 #define meshtastic_LogRecord_init_zero           {"", 0, "", _meshtastic_LogRecord_Level_MIN}
 #define meshtastic_QueueStatus_init_zero         {0, 0, 0, 0}
@@ -1411,7 +1414,7 @@ X(a, STATIC,   SINGULAR, FIXED32,  last_heard,        5) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  device_metrics,    6) \
 X(a, STATIC,   SINGULAR, UINT32,   channel,           7) \
 X(a, STATIC,   SINGULAR, BOOL,     via_mqtt,          8) \
-X(a, STATIC,   SINGULAR, UINT32,   hops_away,         9) \
+X(a, STATIC,   OPTIONAL, UINT32,   hops_away,         9) \
 X(a, STATIC,   SINGULAR, BOOL,     is_favorite,      10)
 #define meshtastic_NodeInfo_CALLBACK NULL
 #define meshtastic_NodeInfo_DEFAULT NULL
