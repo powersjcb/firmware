@@ -314,8 +314,11 @@ void printPacket(const char *prefix, const meshtastic_MeshPacket *p)
         out += DEBUG_PORT.mt_sprintf(" rxRSSI=%i", p->rx_rssi);
     if (p->via_mqtt != 0)
         out += DEBUG_PORT.mt_sprintf(" via MQTT");
-    if (p->hop_start != 0)
-        out += DEBUG_PORT.mt_sprintf(" hopStart=%d", p->hop_start);
+    if (p->hop_start != 0) {
+        out += DEBUG_PORT.mt_sprintf(" hopStart=%d", p->hop_start); 
+    } else {
+        out += DEBUG_PORT.mt_sprintf(" hopStart=0 (unknown if old firmware)"); 
+    }
     if (p->priority != 0)
         out += DEBUG_PORT.mt_sprintf(" priority=%d", p->priority);
 

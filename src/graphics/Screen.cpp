@@ -1411,7 +1411,9 @@ static void drawNodeInfo(OLEDDisplay *display, OLEDDisplayUiState *state, int16_
     static char signalStr[20];
 
     // section here to choose whether to display hops away rather than signal strength if more than 0 hops away.
-    if (node->hops_away > 0) {
+    if (!(node->has_hops_away)) {
+        snprintf(signalStr, sizeof(signalStr), "Hops Away: unknown");
+    } else if (node->hops_away > 0) {
         snprintf(signalStr, sizeof(signalStr), "Hops Away: %d", node->hops_away);
     } else {
         snprintf(signalStr, sizeof(signalStr), "Signal: %d%%", clamp((int)((node->snr + 10) * 5), 0, 100));
